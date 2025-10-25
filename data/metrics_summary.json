@@ -1,0 +1,10 @@
+{
+  "split": "val",
+  "labels": [
+    "Negatif",
+    "Netral",
+    "Positif"
+  ],
+  "indobert_macro_f1": 0.6440119519101893,
+  "lr_macro_f1": 0.710362211070899
+}
