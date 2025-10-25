@@ -7,7 +7,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 from PIL import Image
-from wordcloud import WordCloud, STOPWORDS
+try:
+    from wordcloud import WordCloud, STOPWORDS
+except Exception:
+    # If wordcloud is not installed on the host, avoid import-time crash.
+    WordCloud = None
+    STOPWORDS = set()
 from collections import Counter
 
 # ========================================================
@@ -200,15 +205,18 @@ with _tab2:
                 if not all_text:
                     st.info("Tidak ada teks untuk dibuat WordCloud.")
                 else:
-                    try:
-                        wc_obj = WordCloud(stopwords=_stopwords_streamlit, background_color="white", width=1000, height=400).generate(all_text)
-                        fig, ax = plt.subplots(figsize=(10, 4))
-                        ax.imshow(wc_obj, interpolation="bilinear")
-                        ax.axis("off")
-                        st.pyplot(fig)
-                        plt.close(fig)
-                    except Exception as e:
-                        st.error(f"Gagal membuat WordCloud: {e}")
+                    if WordCloud is None:
+                        st.warning("Paket 'wordcloud' tidak tersedia — WordCloud tidak dapat dibuat. Tambahkan 'wordcloud' ke requirements.txt lalu deploy ulang.")
+                    else:
+                        try:
+                            wc_obj = WordCloud(stopwords=_stopwords_streamlit, background_color="white", width=1000, height=400).generate(all_text)
+                            fig, ax = plt.subplots(figsize=(10, 4))
+                            ax.imshow(wc_obj, interpolation="bilinear")
+                            ax.axis("off")
+                            st.pyplot(fig)
+                            plt.close(fig)
+                        except Exception as e:
+                            st.error(f"Gagal membuat WordCloud: {e}")
 
             with st.expander("Frekuensi Kata Terbanyak"):
                 tokens = [w for w in all_text.split() if w not in _stopwords_streamlit]
